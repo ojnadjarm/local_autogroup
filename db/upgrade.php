@@ -91,7 +91,7 @@ function xmldb_local_autogroup_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022062500.01) {
-        $sql = "DELETE LAM FROM {local_autogroup_manual} LAM JOIN {groups} G ON (G.id = LAM.groupid) WHERE ";
+        $sql = "DELETE FROM {local_autogroup_manual} LAM JOIN {groups} G ON (G.id = LAM.groupid) WHERE ";
         $sql .= $DB->sql_like('G.idnumber', ':autogroupidnum', true, true, true);
 
         $DB->execute($sql, ['autogroupidnum' => 'autogroup|%']);
