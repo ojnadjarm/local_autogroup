@@ -90,9 +90,9 @@ function xmldb_local_autogroup_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2019010300, 'local', 'autogroup');
     }
 
-    if ($oldversion < 2023032302.01) {
+    if ($oldversion < 2023040600) {
         $DB->delete_records_select('local_autogroup_manual', 'groupid IN (SELECT id FROM {groups} WHERE idnumber NOT LIKE ?)', ['autogroup|%']);
-        upgrade_plugin_savepoint(true, 2023032302.01, 'local', 'autogroup');
+        upgrade_plugin_savepoint(true, 2023040600, 'local', 'autogroup');
     }
 
     return true;

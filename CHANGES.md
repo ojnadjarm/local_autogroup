@@ -1,5 +1,14 @@
+## v2.8.2
+  * Solves issue #44 - postgresql compatibility issue during upgrade process, previous fix was still buggy.
+
+## v2.8.1
+  * Solves issue #44 - postgresql compatibility issue during upgrade process
+
+## v2.8
+  * Solves Issue #38 - thanks to Giorgio Riva for the fix.
+
 ## v2.7
-    * Solves Issue #37 - thanks to nrosenquist for fix
+  * Solves Issue #37 - thanks to nrosenquist for fix
 
 ## v2.5
   * Solves https://github.com/emmarichardson/local_autogroup/issues/16 default group by
