@@ -98,7 +98,7 @@ class local_autogroup_renderer extends plugin_renderer_base {
         $row [] = ucfirst(local_autogroup_sanitise_sort_module_name($groupset->sortmodule));
 
         // Get the grouping by text.
-        $row [] = ucfirst($groupset->grouping_by());
+        $row [] = ucfirst(format_string($groupset->grouping_by()));
 
         // Get the count of groups.
         $row [] = $groupset->get_group_count();
