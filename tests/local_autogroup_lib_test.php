@@ -1,4 +1,5 @@
 <?php
+use tool_task\check\adhocqueue;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -31,11 +32,11 @@ require_once($CFG->dirroot.'/user/profile/lib.php');
 require_once($CFG->dirroot.'/user/profile/definelib.php');
 require_once($CFG->dirroot.'/user/lib.php');
 
-class local_autogroup_lib_testcase extends advanced_testcase {
+class local_autogroup_lib_test extends advanced_testcase {
     /**
      * Test setup.
      */
-    public function setUp() {
+    public function setUp(): void {
         $this->resetAfterTest();
     }
 
@@ -63,13 +64,21 @@ class local_autogroup_lib_testcase extends advanced_testcase {
         profile_save_custom_fields($user->id, array('test' => 'Test 1, Test 2, Test 3'));
         user_update_user($user, false, true);
 
-        $groups = groups_get_all_groups($course->id, $user->id);
-        $this->assertCount(3, $groups);
-
-        for ($i = 0; $i < count($groups); $i++) {
-            $this->assertEquals($groups[$i], 'Test ' . $i);
+        $tasks = $DB->get_records('task_adhoc', ['component' => 'local_autogroup']);
+        
+        foreach ($tasks as $taskinfo) {
+            $task = new \local_autogroup\task\process_event();
+            $task->set_custom_data(json_decode($taskinfo->customdata));
+            $task->execute();
         }
 
+        $groups = groups_get_all_groups($course->id, $user->id);
+        $this->assertCount(3, $groups);
+        $count = 1;
+        foreach ($groups as $group) {
+            $this->assertEquals('Test ' . $count, $group->name);
+            $count++;
+        }
     }
 
     private function create_profile_field() {
