@@ -29,21 +29,29 @@ global $CFG;
 
 require_once($CFG->dirroot.'/user/profile/lib.php');
 require_once($CFG->dirroot.'/user/profile/definelib.php');
-require_once($CFG->dirroot.'/user/lib.php');
 
-class local_autogroup_lib_testcase extends advanced_testcase {
+/**
+ * Test class for local_autogroup_lib.
+ *
+ * @package    local_autogroup
+ * @category   test
+ * @package   local_autogroup   
+ * @author    Oscar Nadjar <oscar.nadjar@moodle.com>
+ * @copyright Moodle US
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class local_autogroup_lib_test extends advanced_testcase {
     /**
      * Test setup.
      */
-    public function setUp() {
+    public function setUp(): void {
         $this->resetAfterTest();
     }
 
     /**
-     * A completed course with no equivalents being complete and triggering recompletion notifications
-     * and also expiration..
+     * Test that an user is assigned to a group based on a profile field.
      */
-    public function test_multiple_profile_values() {
+    public function test_autogroup_assign() {
         global $DB;
 
         $this->resetAfterTest();
@@ -54,24 +62,61 @@ class local_autogroup_lib_testcase extends advanced_testcase {
         set_config('enabled', true, 'local_autogroup');
         set_config('addtonewcourses', true, 'local_autogroup');
         set_config('filter', $fieldid, 'local_autogroup');
+        set_config('adhoceventhandler', false, 'local_autogroup');
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $user = $this->getDataGenerator()->create_user();
-
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
-
-        profile_save_custom_fields($user->id, array('test' => 'Test 1, Test 2, Test 3'));
+        profile_save_custom_fields($user->id, ['test' => 'Test 1']);
         user_update_user($user, false, true);
 
         $groups = groups_get_all_groups($course->id, $user->id);
-        $this->assertCount(3, $groups);
-
-        for ($i = 0; $i < count($groups); $i++) {
-            $this->assertEquals($groups[$i], 'Test ' . $i);
+        $this->assertCount(1, $groups);
+        $count = 1;
+        foreach ($groups as $group) {
+            $this->assertEquals('Test ' . $count, $group->name);
+            $count++;
         }
-
     }
 
+    /**
+     * Same as above but with adhoc event handler.
+     */
+    public function test_autogroup_adhoc_assign() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $fieldid = $this->create_profile_field();
+
+        set_config('enabled', true, 'local_autogroup');
+        set_config('addtonewcourses', true, 'local_autogroup');
+        set_config('filter', $fieldid, 'local_autogroup');
+        set_config('adhoceventhandler', true, 'local_autogroup');
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+
+        profile_save_custom_fields($user->id, ['test' => 'Test 1']);
+        user_update_user($user, false, true);
+
+        $this->execute_adhoc();
+        $groups = groups_get_all_groups($course->id, $user->id);
+        $this->assertCount(1, $groups);
+        $count = 1;
+        foreach ($groups as $group) {
+            $this->assertEquals('Test ' . $count, $group->name);
+            $count++;
+        }
+    }
+
+    /**
+     * Create a profile field.
+     *
+     * @return int
+     */
     private function create_profile_field() {
         global $CFG, $DB, $PAGE;
 
@@ -118,5 +163,19 @@ class local_autogroup_lib_testcase extends advanced_testcase {
         profile_reorder_categories();
 
         return $field->id;
+    }
+
+    /**
+     * Execute adhoc tasks.
+     */
+    public function execute_adhoc() {
+        global $DB;
+        $tasks = $DB->get_records('task_adhoc', ['component' => 'local_autogroup']);
+        foreach ($tasks as $taskinfo) {
+            $task = new \local_autogroup\task\process_event();
+            $task->set_custom_data(json_decode($taskinfo->customdata));
+            $task->execute();
+            $DB->delete_records('task_adhoc', ['id' => $taskinfo->id]);
+        }
     }
 }
