@@ -30,8 +30,17 @@ global $CFG;
 
 require_once($CFG->dirroot.'/user/profile/lib.php');
 require_once($CFG->dirroot.'/user/profile/definelib.php');
-require_once($CFG->dirroot.'/user/lib.php');
 
+
+/**
+ * Test class for local_autogroup_lib.
+ *
+ * @package    local_autogroup
+ * @category   test
+ * @copyright  2021 My Learning Consultants
+ * @author     David Saylor <david@mylearningconsultants.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class local_autogroup_lib_test extends advanced_testcase {
     /**
      * Test setup.
