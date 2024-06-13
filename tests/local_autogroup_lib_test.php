@@ -53,7 +53,7 @@ class local_autogroup_lib_test extends advanced_testcase {
      * A completed course with no equivalents being complete and triggering recompletion notifications
      * and also expiration..
      */
-    public function test_multiple_profile_values() {
+    public function test_multiple_profile_live_values() {
         global $DB;
 
         $this->resetAfterTest();
@@ -64,6 +64,7 @@ class local_autogroup_lib_test extends advanced_testcase {
         set_config('enabled', true, 'local_autogroup');
         set_config('addtonewcourses', true, 'local_autogroup');
         set_config('filter', $fieldid, 'local_autogroup');
+        set_config('adhoceventhandler', false, 'local_autogroup');
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $user = $this->getDataGenerator()->create_user();
@@ -73,13 +74,41 @@ class local_autogroup_lib_test extends advanced_testcase {
         profile_save_custom_fields($user->id, array('test' => 'Test 1, Test 2, Test 3'));
         user_update_user($user, false, true);
 
-        $tasks = $DB->get_records('task_adhoc', ['component' => 'local_autogroup']);
-        
-        foreach ($tasks as $taskinfo) {
-            $task = new \local_autogroup\task\process_event();
-            $task->set_custom_data(json_decode($taskinfo->customdata));
-            $task->execute();
+        $groups = groups_get_all_groups($course->id, $user->id);
+        $this->assertCount(3, $groups);
+        $count = 1;
+        foreach ($groups as $group) {
+            $this->assertEquals('Test ' . $count, $group->name);
+            $count++;
         }
+    }
+
+    /**
+     * Same as above but with adhoc event handler.
+     */
+    public function test_multiple_profile_adhoc_values() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $fieldid = $this->create_profile_field();
+
+        set_config('enabled', true, 'local_autogroup');
+        set_config('addtonewcourses', true, 'local_autogroup');
+        set_config('filter', $fieldid, 'local_autogroup');
+        set_config('adhoceventhandler', true, 'local_autogroup');
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        profile_save_custom_fields($user->id, array('test' => 'Test 1, Test 2, Test 3'));
+        user_update_user($user, false, true);
+
+        $groups = groups_get_all_groups($course->id, $user->id);
+        $this->assertCount(0, $groups);
+
+        $this->execute_adhoc();
 
         $groups = groups_get_all_groups($course->id, $user->id);
         $this->assertCount(3, $groups);
@@ -136,5 +165,19 @@ class local_autogroup_lib_test extends advanced_testcase {
         profile_reorder_categories();
 
         return $field->id;
+    }
+
+    /**
+     * Execute adhoc tasks.
+     */
+    public function execute_adhoc() {
+        global $DB;
+        $tasks = $DB->get_records('task_adhoc', ['component' => 'local_autogroup']);
+        foreach ($tasks as $taskinfo) {
+            $task = new \local_autogroup\task\process_event();
+            $task->set_custom_data(json_decode($taskinfo->customdata));
+            $task->execute();
+            $DB->delete_records('task_adhoc', ['id' => $taskinfo->id]);
+        }
     }
 }

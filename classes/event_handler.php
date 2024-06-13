@@ -338,7 +338,12 @@ class event_handler {
 
         $task = new process_event();
         $task->set_custom_data($event->get_data());
-        \core\task\manager::queue_adhoc_task($task);
+        $queryadhoc = get_config('local_autogroup', 'adhoceventhandler');
+        if (!empty($queryadhoc)) {
+            \core\task\manager::queue_adhoc_task($task);
+        } else {
+            $task->execute();
+        }
     }
 
     /**

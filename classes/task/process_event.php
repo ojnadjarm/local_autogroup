@@ -42,6 +42,7 @@ class process_event extends \core\task\adhoc_task {
      */
     public function execute() {
         $event = (object) $this->get_custom_data();
+
         event_handler::process_event($event);
     }
 }
