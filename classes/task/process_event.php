@@ -18,8 +18,8 @@
  * Task that pushes files to S3.
  *
  * @package   local_autogroup   
- * @author    Kenneth Hendricks <kennethhendricks@catalyst-au.net>
- * @copyright Catalyst IT
+ * @author    Oscar Nadjar <oscar.nadjar@moodle.com>
+ * @copyright Moodle US
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
