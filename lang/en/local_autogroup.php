@@ -71,6 +71,7 @@ $string['listenforgroupchanges'] = 'Groups';
 $string['listenforgroupchanges_help'] = 'Listen for modifications to groups on a course. This can prevent issues caused by manual changes but will also slow down AutoGroup as it double checks its own actions. Previously configured as "Strict Enforcement".';
 $string['listenforgroupmembership'] = 'Group Membership';
 $string['listenforgroupmembership_help'] = 'Listen for changes to group membership. This can prevent issues caused by manual changes but will also slow down AutoGroup as it double checks its own actions. Previously configured as "Strict Enforcement".';
+$string['adhoceventhandler'] = 'Execute events actions trough ad-hoc tasks';
 
 // Capabilities.
 $string['autogroup:managecourse']  = 'Manage autogroup settings on course';
