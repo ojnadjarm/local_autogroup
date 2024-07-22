@@ -96,6 +96,7 @@ class user_info_field extends sort_module {
 
         $field = $this->field;
         $data = $DB->get_record('user_info_data', ['fieldid' => $field, 'userid' => $user->id]);
+
         if ($data && !empty($data->data)) {
             return [$data->data];
         }
