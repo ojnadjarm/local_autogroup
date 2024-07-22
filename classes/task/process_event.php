@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Task that pushes files to S3.
+ * Task that processes an event.
  *
  * @package   local_autogroup   
  * @author    Oscar Nadjar <oscar.nadjar@moodle.com>
@@ -34,7 +34,7 @@ class process_event extends \core\task\adhoc_task {
      * Get task name
      */
     public function get_name() {
-        return get_string('process_event', 'tool_objectfs_lmcs');
+        return get_string('process_event', 'local_autogroup');
     }
 
     /**

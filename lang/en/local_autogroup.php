@@ -94,3 +94,6 @@ $string['privacy:metadata:local_autogroup_manual'] = 'Data relating users manual
 $string['privacy:metadata:local_autogroup_manual:id'] = 'Record ID';
 $string['privacy:metadata:local_autogroup_manual:userid'] = 'The ID of the user';
 $string['privacy:metadata:local_autogroup_manual:groupid'] = 'The ID that relates to the group';
+
+// Event task.
+$string['process_event'] = 'Process event';
