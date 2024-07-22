@@ -97,21 +97,9 @@ class user_info_field extends sort_module {
         $field = $this->field;
         $data = $DB->get_record('user_info_data', ['fieldid' => $field, 'userid' => $user->id]);
         if ($data && !empty($data->data)){
-            // Check if the field has comma separated values.
-            if ($fieldvalues = explode(',', $data->data)) {
-                $fields = [];
-                foreach ($fieldvalues as $fieldvalue) {
-                    if ($fieldvalue = trim($fieldvalue)) {
-                        $fields[] = $fieldvalue;
-                    }
-                }
-                return $fields;
-            } else {
-                return [$data->data];
-            }
-        } else {
-            return [];
+            return [$data->data];
         }
+        return [];
     }
 
     /**

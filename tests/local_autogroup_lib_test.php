@@ -35,9 +35,10 @@ require_once($CFG->dirroot.'/user/profile/definelib.php');
  *
  * @package    local_autogroup
  * @category   test
- * @copyright  2021 My Learning Consultants
- * @author     David Saylor <david@mylearningconsultants.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_autogroup   
+ * @author    Oscar Nadjar <oscar.nadjar@moodle.com>
+ * @copyright Moodle US
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_autogroup_lib_test extends advanced_testcase {
     /**
@@ -48,10 +49,9 @@ class local_autogroup_lib_test extends advanced_testcase {
     }
 
     /**
-     * A completed course with no equivalents being complete and triggering recompletion notifications
-     * and also expiration..
+     * Test that an user is assigned to a group based on a profile field.
      */
-    public function test_multiple_profile_live_values() {
+    public function test_autogroup_assign() {
         global $DB;
 
         $this->resetAfterTest();
@@ -67,11 +67,11 @@ class local_autogroup_lib_test extends advanced_testcase {
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
-        profile_save_custom_fields($user->id, array('test' => 'Test 1, Test 2, Test 3'));
+        profile_save_custom_fields($user->id, ['test' => 'Test 1']);
         user_update_user($user, false, true);
 
         $groups = groups_get_all_groups($course->id, $user->id);
-        $this->assertCount(3, $groups);
+        $this->assertCount(1, $groups);
         $count = 1;
         foreach ($groups as $group) {
             $this->assertEquals('Test ' . $count, $group->name);
@@ -82,7 +82,7 @@ class local_autogroup_lib_test extends advanced_testcase {
     /**
      * Same as above but with adhoc event handler.
      */
-    public function test_multiple_profile_adhoc_values() {
+    public function test_autogroup_adhoc_assign() {
         global $DB;
 
         $this->resetAfterTest();
@@ -98,15 +98,13 @@ class local_autogroup_lib_test extends advanced_testcase {
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
-        profile_save_custom_fields($user->id, array('test' => 'Test 1, Test 2, Test 3'));
-        user_update_user($user, false, true);
 
-        $groups = groups_get_all_groups($course->id, $user->id);
-        $this->assertCount(0, $groups);
+        profile_save_custom_fields($user->id, ['test' => 'Test 1']);
+        user_update_user($user, false, true);
 
         $this->execute_adhoc();
         $groups = groups_get_all_groups($course->id, $user->id);
-        $this->assertCount(3, $groups);
+        $this->assertCount(1, $groups);
         $count = 1;
         foreach ($groups as $group) {
             $this->assertEquals('Test ' . $count, $group->name);
