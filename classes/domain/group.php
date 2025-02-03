@@ -210,7 +210,7 @@ class group extends domain {
 
         foreach ($this->members as $member) {
             if ($member === $userid) {
-                \groups_remove_member($this->as_object(), $userid);
+                \groups_remove_member($this->as_object()->id, $userid);
                 return true;
             }
         }
